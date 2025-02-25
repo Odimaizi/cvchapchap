@@ -1,3 +1,5 @@
+"use client";
+import { CldImage } from "next-cloudinary";
 import Image from "next/image";
 
 export default function Home() {
@@ -48,7 +50,19 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+
+        {/* Cloudinary Image Component */}
+        <CldImage
+          src="cld-sample-5"
+          width={500}
+          height={500}
+          crop={{
+            type: "auto",
+            source: true,
+          }}
+        />
       </main>
+
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
@@ -97,23 +111,5 @@ export default function Home() {
         </a>
       </footer>
     </div>
-  );
-}
-
-"use client";
-import { CldImage } from 'next-cloudinary';
-
-// By default, the CldImage component applies auto-format and auto-quality to all delivery URLs for optimized delivery.
-export default function Page() {
-  return (
-    <CldImage
-      src="cld-sample-5" // Use this sample image or upload your own via the Media Explorer
-      width="500" // Transform the image: auto-crop to square aspect_ratio
-      height="500"
-      crop={{
-        type: 'auto',
-        source: true
-      }}
-    />
   );
 }
