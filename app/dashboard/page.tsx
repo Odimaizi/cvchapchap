@@ -5,7 +5,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useRouter } from "next/navigation"
 import { useSubscription } from "@/contexts/subscription-context"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import Link from "next/link"
 import {
   FileText,
@@ -21,6 +21,8 @@ import {
   Lock,
   Briefcase,
   MessageSquare,
+  Calendar,
+  Clock,
 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -42,6 +44,24 @@ export default function Dashboard() {
   const supabase = createClientComponentClient()
   const { theme, setTheme } = useTheme()
 
+  // Analytics data
+  const [analytics, setAnalytics] = useState({
+    resumesCreated: 0,
+    coverLettersCreated: 0,
+    jobsApplied: 0,
+    interviewsScheduled: 0,
+    lastActivity: "",
+    recentSearches: [],
+    upcomingInterviews: [],
+    applicationStatus: {
+      pending: 0,
+      reviewed: 0,
+      interview: 0,
+      rejected: 0,
+      accepted: 0,
+    },
+  })
+
   useEffect(() => {
     const getSession = async () => {
       const {
@@ -56,6 +76,27 @@ export default function Dashboard() {
         setProfileCompletion(Math.floor(Math.random() * 101))
         // Simulate CV Bora score calculation
         setCvBoraScore(Math.floor(Math.random() * 101))
+
+        // Simulate analytics data
+        setAnalytics({
+          resumesCreated: Math.floor(Math.random() * 10),
+          coverLettersCreated: Math.floor(Math.random() * 8),
+          jobsApplied: Math.floor(Math.random() * 15),
+          interviewsScheduled: Math.floor(Math.random() * 5),
+          lastActivity: "2 hours ago",
+          recentSearches: ["Software Engineer", "Product Manager", "UX Designer"],
+          upcomingInterviews: [
+            { company: "Tech Corp", date: "Tomorrow, 2:00 PM" },
+            { company: "Innovate Inc", date: "Friday, 10:00 AM" },
+          ],
+          applicationStatus: {
+            pending: Math.floor(Math.random() * 10),
+            reviewed: Math.floor(Math.random() * 8),
+            interview: Math.floor(Math.random() * 5),
+            rejected: Math.floor(Math.random() * 3),
+            accepted: Math.floor(Math.random() * 2),
+          },
+        })
       }
       setLoading(false)
     }
@@ -182,6 +223,118 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Analytics Overview Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Resumes Created</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics.resumesCreated}</div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {analytics.resumesCreated > 0 ? "+1 from last month" : "No change from last month"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Jobs Applied</CardTitle>
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics.jobsApplied}</div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {analytics.jobsApplied > 5 ? "+3 from last week" : "+1 from last week"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Interviews</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics.interviewsScheduled}</div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {analytics.interviewsScheduled > 0 ? "Next: Tomorrow" : "No upcoming interviews"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Last Activity</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics.lastActivity}</div>
+            <p className="text-xs text-muted-foreground mt-2">Resume update</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Application Status */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Application Status</CardTitle>
+          <CardDescription>Track your job application progress</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-5 gap-4 text-center">
+            <div className="flex flex-col items-center">
+              <div className="text-2xl font-bold">{analytics.applicationStatus.pending}</div>
+              <div className="text-xs text-muted-foreground mt-1">Pending</div>
+              <div className="w-full bg-muted rounded-full h-1 mt-2">
+                <div
+                  className="bg-blue-500 h-1 rounded-full"
+                  style={{ width: `${(analytics.applicationStatus.pending / analytics.jobsApplied) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-2xl font-bold">{analytics.applicationStatus.reviewed}</div>
+              <div className="text-xs text-muted-foreground mt-1">Reviewed</div>
+              <div className="w-full bg-muted rounded-full h-1 mt-2">
+                <div
+                  className="bg-yellow-500 h-1 rounded-full"
+                  style={{ width: `${(analytics.applicationStatus.reviewed / analytics.jobsApplied) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-2xl font-bold">{analytics.applicationStatus.interview}</div>
+              <div className="text-xs text-muted-foreground mt-1">Interview</div>
+              <div className="w-full bg-muted rounded-full h-1 mt-2">
+                <div
+                  className="bg-purple-500 h-1 rounded-full"
+                  style={{ width: `${(analytics.applicationStatus.interview / analytics.jobsApplied) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-2xl font-bold">{analytics.applicationStatus.rejected}</div>
+              <div className="text-xs text-muted-foreground mt-1">Rejected</div>
+              <div className="w-full bg-muted rounded-full h-1 mt-2">
+                <div
+                  className="bg-red-500 h-1 rounded-full"
+                  style={{ width: `${(analytics.applicationStatus.rejected / analytics.jobsApplied) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-2xl font-bold">{analytics.applicationStatus.accepted}</div>
+              <div className="text-xs text-muted-foreground mt-1">Accepted</div>
+              <div className="w-full bg-muted rounded-full h-1 mt-2">
+                <div
+                  className="bg-green-500 h-1 rounded-full"
+                  style={{ width: `${(analytics.applicationStatus.accepted / analytics.jobsApplied) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -276,6 +429,55 @@ export default function Dashboard() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Upcoming Interviews */}
+      {analytics.upcomingInterviews.length > 0 && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Upcoming Interviews</CardTitle>
+            <CardDescription>Your scheduled interviews</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {analytics.upcomingInterviews.map((interview, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div className="flex items-center">
+                    <div className="bg-primary/10 p-2 rounded-full mr-3">
+                      <Calendar className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <div className="font-medium">{interview.company}</div>
+                      <div className="text-sm text-muted-foreground">{interview.date}</div>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    Prepare
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recent Searches */}
+      {analytics.recentSearches.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Searches</CardTitle>
+            <CardDescription>Your recent job searches</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {analytics.recentSearches.map((search, index) => (
+                <Badge key={index} variant="secondary" className="cursor-pointer">
+                  {search}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

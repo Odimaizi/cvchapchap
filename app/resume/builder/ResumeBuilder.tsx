@@ -9,6 +9,8 @@ import { ResumeForm } from "./ResumeForm"
 import { ResumePreview } from "./ResumePreview"
 import { AIAssistant } from "./AIAssistant"
 import { useToast } from "@/components/ui/use-toast"
+import { ResumePaymentWall } from "@/components/ResumePaymentWall"
+import { useSubscription } from "@/contexts/subscription-context"
 
 export default function ResumeBuilder() {
   const [selectedTemplate, setSelectedTemplate] = useState(null)
@@ -18,7 +20,10 @@ export default function ResumeBuilder() {
     education: [],
     skills: [],
   })
+  const [activeTab, setActiveTab] = useState("template")
+  const [showPaymentWall, setShowPaymentWall] = useState(false)
   const { toast } = useToast()
+  const { plan, usage } = useSubscription()
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template)
@@ -32,10 +37,38 @@ export default function ResumeBuilder() {
     setResumeData(newData)
   }
 
+  const handleExportClick = () => {
+    // Check if user needs to pay
+    if (plan === "free" || (plan === "premium" && usage.resumesUsed >= usage.resumesLimit)) {
+      setShowPaymentWall(true)
+    } else {
+      // Process export directly
+      handleExport()
+    }
+  }
+
+  const handleExport = () => {
+    console.log("Exporting resume...")
+    toast({
+      title: "Resume Exported",
+      description: "Your resume has been exported successfully.",
+    })
+    // Actual export logic would go here
+  }
+
+  const handlePaymentComplete = () => {
+    setShowPaymentWall(false)
+    handleExport()
+  }
+
+  if (showPaymentWall) {
+    return <ResumePaymentWall onPaymentComplete={handlePaymentComplete} />
+  }
+
   return (
     <div className="container mx-auto py-12">
       <h1 className="text-3xl font-bold mb-8">Resume Builder</h1>
-      <Tabs defaultValue="template">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="template">Choose Template</TabsTrigger>
           <TabsTrigger value="content">Add Content</TabsTrigger>
@@ -63,7 +96,7 @@ export default function ResumeBuilder() {
         </TabsContent>
       </Tabs>
       <div className="mt-8 text-center">
-        <Button size="lg" onClick={() => console.log("Exporting resume...")}>
+        <Button size="lg" onClick={handleExportClick}>
           Export Resume
         </Button>
       </div>

@@ -3,14 +3,15 @@
 import { useState, useEffect } from "react"
 import { useSubscription } from "@/contexts/subscription-context"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Search, Briefcase, MapPin, Clock, Lock } from "lucide-react"
-import Link from "next/link"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Search, MapPin, Lock, Filter } from "lucide-react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { JobList } from "./job-list"
 
 interface Job {
   id: number
@@ -22,6 +23,9 @@ interface Job {
   requirements: string[]
   posted_date: string
   is_public: boolean
+  job_type: string
+  industry: string
+  experience_level: string
 }
 
 // Sample job data
@@ -32,10 +36,14 @@ const SAMPLE_JOBS: Job[] = [
     company: "Tech Innovations Kenya",
     location: "Nairobi",
     salary: "KSh 100,000 - 150,000",
-    description: "We are seeking a talented Software Engineer to join our growing team...",
+    description:
+      "We are seeking a talented Software Engineer to join our growing team. You will be responsible for developing and maintaining software applications, collaborating with cross-functional teams, and ensuring high-quality code standards.",
     requirements: ["3+ years of experience", "JavaScript", "React", "Node.js"],
     posted_date: "2023-05-10",
     is_public: true,
+    job_type: "Full-time",
+    industry: "Technology",
+    experience_level: "Mid-level",
   },
   {
     id: 2,
@@ -43,10 +51,14 @@ const SAMPLE_JOBS: Job[] = [
     company: "Brand Builders Ltd",
     location: "Mombasa",
     salary: "KSh 80,000 - 120,000",
-    description: "Brand Builders Ltd is looking for an experienced Marketing Manager to lead our marketing efforts...",
+    description:
+      "Brand Builders Ltd is looking for an experienced Marketing Manager to lead our marketing efforts. You will develop and implement marketing strategies, manage campaigns, and analyze market trends to drive business growth.",
     requirements: ["5+ years of experience", "Digital Marketing", "Campaign Management", "Analytics"],
     posted_date: "2023-05-12",
     is_public: true,
+    job_type: "Full-time",
+    industry: "Marketing",
+    experience_level: "Senior",
   },
   {
     id: 3,
@@ -54,10 +66,14 @@ const SAMPLE_JOBS: Job[] = [
     company: "Kenyan Investment Bank",
     location: "Nairobi",
     salary: "KSh 90,000 - 130,000",
-    description: "Join our team of financial experts and help drive investment decisions...",
+    description:
+      "Join our team of financial experts and help drive investment decisions. You will analyze financial data, prepare reports, and provide recommendations to support business strategy and growth.",
     requirements: ["Finance degree", "Excel", "Financial modeling", "Investment analysis"],
     posted_date: "2023-05-15",
     is_public: false,
+    job_type: "Full-time",
+    industry: "Finance",
+    experience_level: "Mid-level",
   },
   {
     id: 4,
@@ -65,10 +81,14 @@ const SAMPLE_JOBS: Job[] = [
     company: "Innovation Hub",
     location: "Nairobi",
     salary: "KSh 120,000 - 180,000",
-    description: "Lead product development and strategy for our flagship products...",
+    description:
+      "Lead product development and strategy for our flagship products. You will work with cross-functional teams to define product vision, gather requirements, and drive product launches.",
     requirements: ["Product management experience", "Agile", "User research", "Roadmap planning"],
     posted_date: "2023-05-16",
     is_public: false,
+    job_type: "Full-time",
+    industry: "Technology",
+    experience_level: "Senior",
   },
   {
     id: 5,
@@ -76,10 +96,44 @@ const SAMPLE_JOBS: Job[] = [
     company: "Creative Solutions",
     location: "Kisumu",
     salary: "KSh 70,000 - 100,000",
-    description: "Design intuitive and engaging user experiences for our clients...",
+    description:
+      "Design intuitive and engaging user experiences for our clients. You will create wireframes, prototypes, and user flows to deliver exceptional digital products.",
     requirements: ["UI/UX experience", "Figma", "User testing", "Prototyping"],
     posted_date: "2023-05-18",
     is_public: true,
+    job_type: "Contract",
+    industry: "Design",
+    experience_level: "Mid-level",
+  },
+  {
+    id: 6,
+    title: "Data Scientist",
+    company: "Data Insights Kenya",
+    location: "Nairobi",
+    salary: "KSh 110,000 - 160,000",
+    description:
+      "Analyze complex data sets to extract insights and drive business decisions. You will develop machine learning models, create data visualizations, and communicate findings to stakeholders.",
+    requirements: ["Python", "Machine Learning", "Data Analysis", "Statistics"],
+    posted_date: "2023-05-20",
+    is_public: true,
+    job_type: "Full-time",
+    industry: "Technology",
+    experience_level: "Senior",
+  },
+  {
+    id: 7,
+    title: "HR Manager",
+    company: "Corporate Services Ltd",
+    location: "Nairobi",
+    salary: "KSh 85,000 - 120,000",
+    description:
+      "Oversee all aspects of human resources management including recruitment, employee relations, and policy development. You will ensure compliance with labor laws and foster a positive work environment.",
+    requirements: ["HR certification", "Employee relations", "Recruitment", "Policy development"],
+    posted_date: "2023-05-22",
+    is_public: false,
+    job_type: "Full-time",
+    industry: "Human Resources",
+    experience_level: "Senior",
   },
 ]
 
@@ -91,6 +145,14 @@ export function JobBoardClient() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
   const [activeTab, setActiveTab] = useState("all")
+  const [showFilters, setShowFilters] = useState(false)
+  const [filters, setFilters] = useState({
+    jobType: "",
+    industry: "",
+    experienceLevel: "",
+    salary: "",
+    remote: false,
+  })
   const hasAccessToPrivateJobs = hasAccessTo("private-jobs")
 
   useEffect(() => {
@@ -126,6 +188,23 @@ export function JobBoardClient() {
       results = results.filter((job) => job.location.toLowerCase().includes(location.toLowerCase()))
     }
 
+    // Apply additional filters
+    if (filters.jobType) {
+      results = results.filter((job) => job.job_type === filters.jobType)
+    }
+
+    if (filters.industry) {
+      results = results.filter((job) => job.industry === filters.industry)
+    }
+
+    if (filters.experienceLevel) {
+      results = results.filter((job) => job.experience_level === filters.experienceLevel)
+    }
+
+    if (filters.remote) {
+      results = results.filter((job) => job.location.toLowerCase().includes("remote"))
+    }
+
     setFilteredJobs(results)
   }
 
@@ -144,7 +223,7 @@ export function JobBoardClient() {
 
     let results = jobs
 
-    if (searchTerm || location) {
+    if (searchTerm || location || Object.values(filters).some(Boolean)) {
       results = filteredJobs
     }
 
@@ -157,6 +236,14 @@ export function JobBoardClient() {
 
     setFilteredJobs(results)
   }
+
+  const handleFilterChange = (key: string, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }))
+  }
+
+  useEffect(() => {
+    handleSearch()
+  }, [filters])
 
   return (
     <div className="space-y-6">
@@ -193,12 +280,83 @@ export function JobBoardClient() {
                 />
               </div>
             </div>
-            <div className="flex items-end">
-              <Button onClick={handleSearch} className="w-full">
+            <div className="flex items-end gap-2">
+              <Button onClick={handleSearch} className="flex-1">
                 Search Jobs
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowFilters(!showFilters)}
+                aria-label="Toggle filters"
+              >
+                <Filter className="h-4 w-4" />
               </Button>
             </div>
           </div>
+
+          {showFilters && (
+            <div className="mt-4 grid gap-4 md:grid-cols-4">
+              <div className="space-y-2">
+                <Label htmlFor="jobType">Job Type</Label>
+                <Select value={filters.jobType} onValueChange={(value) => handleFilterChange("jobType", value)}>
+                  <SelectTrigger id="jobType">
+                    <SelectValue placeholder="All types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All types</SelectItem>
+                    <SelectItem value="Full-time">Full-time</SelectItem>
+                    <SelectItem value="Part-time">Part-time</SelectItem>
+                    <SelectItem value="Contract">Contract</SelectItem>
+                    <SelectItem value="Freelance">Freelance</SelectItem>
+                    <SelectItem value="Internship">Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="industry">Industry</Label>
+                <Select value={filters.industry} onValueChange={(value) => handleFilterChange("industry", value)}>
+                  <SelectTrigger id="industry">
+                    <SelectValue placeholder="All industries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All industries</SelectItem>
+                    <SelectItem value="Technology">Technology</SelectItem>
+                    <SelectItem value="Finance">Finance</SelectItem>
+                    <SelectItem value="Marketing">Marketing</SelectItem>
+                    <SelectItem value="Design">Design</SelectItem>
+                    <SelectItem value="Human Resources">Human Resources</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="experienceLevel">Experience Level</Label>
+                <Select
+                  value={filters.experienceLevel}
+                  onValueChange={(value) => handleFilterChange("experienceLevel", value)}
+                >
+                  <SelectTrigger id="experienceLevel">
+                    <SelectValue placeholder="All levels" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All levels</SelectItem>
+                    <SelectItem value="Entry-level">Entry-level</SelectItem>
+                    <SelectItem value="Mid-level">Mid-level</SelectItem>
+                    <SelectItem value="Senior">Senior</SelectItem>
+                    <SelectItem value="Executive">Executive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center space-x-2 pt-8">
+                <Checkbox
+                  id="remote"
+                  checked={filters.remote}
+                  onCheckedChange={(checked) => handleFilterChange("remote", checked)}
+                />
+                <Label htmlFor="remote">Remote jobs only</Label>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -218,59 +376,7 @@ export function JobBoardClient() {
         )}
       </div>
 
-      <div className="space-y-4">
-        {filteredJobs.length > 0 ? (
-          filteredJobs.map((job) => (
-            <Card key={job.id}>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle>{job.title}</CardTitle>
-                    <CardDescription>
-                      {job.company} - {job.location}
-                    </CardDescription>
-                  </div>
-                  {!job.is_public && (
-                    <Badge variant="secondary" className="ml-2">
-                      Premium
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Briefcase className="mr-1 h-4 w-4" />
-                    <span>{job.salary}</span>
-                    <Clock className="ml-4 mr-1 h-4 w-4" />
-                    <span>Posted {new Date(job.posted_date).toLocaleDateString()}</span>
-                  </div>
-
-                  <p className="line-clamp-2">{job.description}</p>
-
-                  <div className="flex flex-wrap gap-2">
-                    {job.requirements.map((req, index) => (
-                      <Badge key={index} variant="outline">
-                        {req}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button variant="outline" asChild>
-                  <Link href={`/job-board/${job.id}`}>View Details</Link>
-                </Button>
-                <Button>Apply Now</Button>
-              </CardFooter>
-            </Card>
-          ))
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No jobs found matching your criteria.</p>
-          </div>
-        )}
-      </div>
+      <JobList jobs={filteredJobs} />
     </div>
   )
 }
