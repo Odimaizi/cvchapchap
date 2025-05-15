@@ -1,143 +1,117 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart, Download, FileText, TrendingUp, Users } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
 
-export default function AdminDashboardPage() {
+export default function AdminDashboard() {
+  const [apiKey, setApiKey] = useState("")
+  const [templateName, setTemplateName] = useState("")
+  const [templateHtml, setTemplateHtml] = useState("")
+  const [templateCss, setTemplateCss] = useState("")
+
+  const handleApiKeySubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("API Key submitted:", apiKey)
+  }
+
+  const handleTemplateSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("Template submitted:", { templateName, templateHtml, templateCss })
+  }
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Admin Dashboard</h2>
-        <p className="text-muted-foreground">Overview of platform statistics and user activity</p>
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-4">
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <Tabs defaultValue="api-keys">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="api-keys">API Keys</TabsTrigger>
+          <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
         </TabsList>
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">1,248</div>
-                <p className="text-xs text-muted-foreground mt-2">+12% from last month</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Resumes Created</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">3,587</div>
-                <p className="text-xs text-muted-foreground mt-2">+8% from last month</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Downloads</CardTitle>
-                <Download className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">2,845</div>
-                <p className="text-xs text-muted-foreground mt-2">+24% from last month</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">32.5%</div>
-                <p className="text-xs text-muted-foreground mt-2">+4.3% from last month</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
-              <CardHeader>
-                <CardTitle>User Activity</CardTitle>
-                <CardDescription>User registrations and active users over time</CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <div className="h-[300px] w-full bg-muted/20 rounded-md flex items-center justify-center">
-                  <BarChart className="h-8 w-8 text-muted-foreground" />
-                  <span className="ml-2 text-muted-foreground">Activity chart will appear here</span>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Popular Templates</CardTitle>
-                <CardDescription>Most used resume templates</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 rounded-full bg-primary"></div>
-                      <span>Professional</span>
-                    </div>
-                    <span className="font-medium">42%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 rounded-full bg-blue-500"></div>
-                      <span>Modern</span>
-                    </div>
-                    <span className="font-medium">28%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 rounded-full bg-green-500"></div>
-                      <span>Minimalist</span>
-                    </div>
-                    <span className="font-medium">18%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 rounded-full bg-yellow-500"></div>
-                      <span>Creative</span>
-                    </div>
-                    <span className="font-medium">12%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        <TabsContent value="analytics" className="space-y-4">
+        <TabsContent value="api-keys">
           <Card>
             <CardHeader>
-              <CardTitle>Analytics Dashboard</CardTitle>
-              <CardDescription>Detailed analytics will be displayed here</CardDescription>
+              <CardTitle>Manage API Keys</CardTitle>
+              <CardDescription>Add or update API keys for various services</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[400px] w-full bg-muted/20 rounded-md flex items-center justify-center">
-                <BarChart className="h-8 w-8 text-muted-foreground" />
-                <span className="ml-2 text-muted-foreground">Analytics dashboard will appear here</span>
-              </div>
+              <form onSubmit={handleApiKeySubmit}>
+                <div className="space-y-2">
+                  <Label htmlFor="api-key">API Key</Label>
+                  <Input
+                    id="api-key"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="Enter API key"
+                  />
+                </div>
+                <Button type="submit" className="mt-4">
+                  Save API Key
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="reports" className="space-y-4">
+        <TabsContent value="templates">
           <Card>
             <CardHeader>
-              <CardTitle>Reports</CardTitle>
-              <CardDescription>Generate and view reports</CardDescription>
+              <CardTitle>Manage Templates</CardTitle>
+              <CardDescription>Add or edit CV and resume templates</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[400px] w-full bg-muted/20 rounded-md flex items-center justify-center">
-                <FileText className="h-8 w-8 text-muted-foreground" />
-                <span className="ml-2 text-muted-foreground">Reports will appear here</span>
-              </div>
+              <form onSubmit={handleTemplateSubmit}>
+                <div className="space-y-2">
+                  <Label htmlFor="template-name">Template Name</Label>
+                  <Input
+                    id="template-name"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    placeholder="Enter template name"
+                  />
+                </div>
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="template-html">HTML</Label>
+                  <Textarea
+                    id="template-html"
+                    value={templateHtml}
+                    onChange={(e) => setTemplateHtml(e.target.value)}
+                    placeholder="Enter template HTML"
+                    rows={10}
+                  />
+                </div>
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="template-css">CSS</Label>
+                  <Textarea
+                    id="template-css"
+                    value={templateCss}
+                    onChange={(e) => setTemplateCss(e.target.value)}
+                    placeholder="Enter template CSS"
+                    rows={10}
+                  />
+                </div>
+                <Button type="submit" className="mt-4">
+                  Save Template
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="integrations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Integrations</CardTitle>
+              <CardDescription>Configure integrations with other services</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Add integration management UI here */}
+              <p>Integration management coming soon...</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -145,4 +119,3 @@ export default function AdminDashboardPage() {
     </div>
   )
 }
-
