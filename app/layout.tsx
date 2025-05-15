@@ -1,7 +1,7 @@
 import type React from "react"
 import "./globals.css"
 import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Providers } from "./providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <Providers>
           <div className="flex flex-col min-h-screen">
             <header>
               <nav>{/* Add your navigation menu here with proper ARIA labels */}</nav>
@@ -32,7 +32,7 @@ export default function RootLayout({
             </main>
             <footer>{/* Add your footer content here */}</footer>
           </div>
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )
