@@ -4,11 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlusCircle, MinusCircle } from "lucide-react"
 
-export function ResumeForm({ data, onChange }) {
+export function ResumeForm({ data, onChange, activeTab }) {
   const handlePersonalInfoChange = (e) => {
     const { name, value } = e.target
     onChange({
@@ -59,13 +57,6 @@ export function ResumeForm({ data, onChange }) {
     const newReferences = [...data.references]
     newReferences[index] = { ...newReferences[index], [field]: value }
     onChange({ ...data, references: newReferences })
-  }
-
-  const handleAdditionalSectionChange = (section, value) => {
-    onChange({
-      ...data,
-      additionalSections: { ...data.additionalSections, [section]: value },
-    })
   }
 
   const addWorkExperience = () => {
@@ -163,113 +154,95 @@ export function ResumeForm({ data, onChange }) {
     onChange({ ...data, references: newReferences })
   }
 
-  return (
-    <Tabs defaultValue="personal" className="space-y-6">
-      <TabsList className="mb-4">
-        <TabsTrigger value="personal">Personal</TabsTrigger>
-        <TabsTrigger value="experience">Experience</TabsTrigger>
-        <TabsTrigger value="education">Education</TabsTrigger>
-        <TabsTrigger value="skills">Skills</TabsTrigger>
-        <TabsTrigger value="achievements">Achievements</TabsTrigger>
-        <TabsTrigger value="references">References</TabsTrigger>
-        <TabsTrigger value="additional">Additional</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="personal">
-        <Card>
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    value={data.personal.firstName}
-                    onChange={handlePersonalInfoChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    value={data.personal.lastName}
-                    onChange={handlePersonalInfoChange}
-                  />
-                </div>
-              </div>
+  // Render only the active tab content
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "personal":
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="tagline">Professional Tagline</Label>
+                <Label htmlFor="firstName">First Name</Label>
                 <Input
-                  id="tagline"
-                  name="tagline"
-                  value={data.personal.tagline}
+                  id="firstName"
+                  name="firstName"
+                  value={data.personal.firstName}
                   onChange={handlePersonalInfoChange}
-                  placeholder="e.g. Senior Software Engineer with 10+ years of experience"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={data.personal.email}
-                    onChange={handlePersonalInfoChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" name="phone" value={data.personal.phone} onChange={handlePersonalInfoChange} />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" name="city" value={data.personal.city} onChange={handlePersonalInfoChange} />
-                </div>
-                <div>
-                  <Label htmlFor="county">County/State</Label>
-                  <Input id="county" name="county" value={data.personal.county} onChange={handlePersonalInfoChange} />
-                </div>
-                <div>
-                  <Label htmlFor="postcode">Postcode/ZIP</Label>
-                  <Input
-                    id="postcode"
-                    name="postcode"
-                    value={data.personal.postcode}
-                    onChange={handlePersonalInfoChange}
-                  />
-                </div>
-              </div>
               <div>
-                <Label htmlFor="professionalSummary">Professional Summary</Label>
-                <Textarea
-                  id="professionalSummary"
-                  name="professionalSummary"
-                  value={data.personal.professionalSummary}
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  value={data.personal.lastName}
                   onChange={handlePersonalInfoChange}
-                  rows={4}
                 />
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
+            <div>
+              <Label htmlFor="tagline">Professional Tagline</Label>
+              <Input
+                id="tagline"
+                name="tagline"
+                value={data.personal.tagline}
+                onChange={handlePersonalInfoChange}
+                placeholder="e.g. Senior Software Engineer with 10+ years of experience"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={data.personal.email}
+                  onChange={handlePersonalInfoChange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone">Phone</Label>
+                <Input id="phone" name="phone" value={data.personal.phone} onChange={handlePersonalInfoChange} />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="city">City</Label>
+                <Input id="city" name="city" value={data.personal.city} onChange={handlePersonalInfoChange} />
+              </div>
+              <div>
+                <Label htmlFor="county">County/State</Label>
+                <Input id="county" name="county" value={data.personal.county} onChange={handlePersonalInfoChange} />
+              </div>
+              <div>
+                <Label htmlFor="postcode">Postcode/ZIP</Label>
+                <Input
+                  id="postcode"
+                  name="postcode"
+                  value={data.personal.postcode}
+                  onChange={handlePersonalInfoChange}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="professionalSummary">Professional Summary</Label>
+              <Textarea
+                id="professionalSummary"
+                name="professionalSummary"
+                value={data.personal.professionalSummary}
+                onChange={handlePersonalInfoChange}
+                rows={4}
+              />
+            </div>
+          </div>
+        )
 
-      <TabsContent value="experience">
-        <Card>
-          <CardHeader>
-            <CardTitle>Work Experience</CardTitle>
-          </CardHeader>
-          <CardContent>
+      case "experience":
+        return (
+          <div className="space-y-6">
             {data.workExperience.map((exp, index) => (
-              <div key={index} className="mb-6 p-4 border rounded">
+              <div key={index} className="p-4 border rounded">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium">Position {index + 1}</h3>
                   {data.workExperience.length > 1 && (
@@ -278,7 +251,7 @@ export function ResumeForm({ data, onChange }) {
                     </Button>
                   )}
                 </div>
-                <div className="grid gap-4">
+                <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor={`jobTitle-${index}`}>Job Title</Label>
@@ -351,18 +324,14 @@ export function ResumeForm({ data, onChange }) {
             <Button onClick={addWorkExperience}>
               <PlusCircle className="mr-2 h-4 w-4" /> Add Work Experience
             </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        )
 
-      <TabsContent value="education">
-        <Card>
-          <CardHeader>
-            <CardTitle>Education</CardTitle>
-          </CardHeader>
-          <CardContent>
+      case "education":
+        return (
+          <div className="space-y-6">
             {data.education.map((edu, index) => (
-              <div key={index} className="mb-6 p-4 border rounded">
+              <div key={index} className="p-4 border rounded">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium">Education {index + 1}</h3>
                   {data.education.length > 1 && (
@@ -371,7 +340,7 @@ export function ResumeForm({ data, onChange }) {
                     </Button>
                   )}
                 </div>
-                <div className="grid gap-4">
+                <div className="space-y-4">
                   <div>
                     <Label htmlFor={`institution-${index}`}>Institution</Label>
                     <Input
@@ -433,18 +402,14 @@ export function ResumeForm({ data, onChange }) {
             <Button onClick={addEducation}>
               <PlusCircle className="mr-2 h-4 w-4" /> Add Education
             </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        )
 
-      <TabsContent value="skills">
-        <Card>
-          <CardHeader>
-            <CardTitle>Skills</CardTitle>
-          </CardHeader>
-          <CardContent>
+      case "skills":
+        return (
+          <div className="space-y-4">
             {data.skills.map((skill, index) => (
-              <div key={index} className="mb-4 flex items-center gap-2">
+              <div key={index} className="flex items-center gap-2">
                 <Input
                   value={skill}
                   onChange={(e) => handleSkillChange(index, e.target.value)}
@@ -460,18 +425,14 @@ export function ResumeForm({ data, onChange }) {
             <Button onClick={addSkill}>
               <PlusCircle className="mr-2 h-4 w-4" /> Add Skill
             </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        )
 
-      <TabsContent value="achievements">
-        <Card>
-          <CardHeader>
-            <CardTitle>Achievements</CardTitle>
-          </CardHeader>
-          <CardContent>
+      case "achievements":
+        return (
+          <div className="space-y-4">
             {data.achievements.map((achievement, index) => (
-              <div key={index} className="mb-4 flex items-center gap-2">
+              <div key={index} className="flex items-center gap-2">
                 <Input
                   value={achievement}
                   onChange={(e) => handleAchievementChange(index, e.target.value)}
@@ -487,18 +448,14 @@ export function ResumeForm({ data, onChange }) {
             <Button onClick={addAchievement}>
               <PlusCircle className="mr-2 h-4 w-4" /> Add Achievement
             </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        )
 
-      <TabsContent value="references">
-        <Card>
-          <CardHeader>
-            <CardTitle>References</CardTitle>
-          </CardHeader>
-          <CardContent>
+      case "references":
+        return (
+          <div className="space-y-6">
             {data.references.map((reference, index) => (
-              <div key={index} className="mb-6 p-4 border rounded">
+              <div key={index} className="p-4 border rounded">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium">Reference {index + 1}</h3>
                   {data.references.length > 1 && (
@@ -507,7 +464,7 @@ export function ResumeForm({ data, onChange }) {
                     </Button>
                   )}
                 </div>
-                <div className="grid gap-4">
+                <div className="space-y-4">
                   <div>
                     <Label htmlFor={`refName-${index}`}>Name</Label>
                     <Input
@@ -558,71 +515,13 @@ export function ResumeForm({ data, onChange }) {
             <Button onClick={addReference}>
               <PlusCircle className="mr-2 h-4 w-4" /> Add Reference
             </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
+          </div>
+        )
 
-      <TabsContent value="additional">
-        <Card>
-          <CardHeader>
-            <CardTitle>Additional Sections</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div>
-                <Label htmlFor="certifications">Certifications</Label>
-                <Textarea
-                  id="certifications"
-                  value={data.additionalSections.certifications}
-                  onChange={(e) => handleAdditionalSectionChange("certifications", e.target.value)}
-                  rows={3}
-                  placeholder="List your certifications"
-                />
-              </div>
-              <div>
-                <Label htmlFor="languages">Languages</Label>
-                <Textarea
-                  id="languages"
-                  value={data.additionalSections.languages}
-                  onChange={(e) => handleAdditionalSectionChange("languages", e.target.value)}
-                  rows={3}
-                  placeholder="List languages you speak and proficiency level"
-                />
-              </div>
-              <div>
-                <Label htmlFor="websites">Websites & Profiles</Label>
-                <Textarea
-                  id="websites"
-                  value={data.additionalSections.websites}
-                  onChange={(e) => handleAdditionalSectionChange("websites", e.target.value)}
-                  rows={3}
-                  placeholder="Personal website, LinkedIn, GitHub, etc."
-                />
-              </div>
-              <div>
-                <Label htmlFor="software">Software Proficiency</Label>
-                <Textarea
-                  id="software"
-                  value={data.additionalSections.software}
-                  onChange={(e) => handleAdditionalSectionChange("software", e.target.value)}
-                  rows={3}
-                  placeholder="List software and tools you're proficient with"
-                />
-              </div>
-              <div>
-                <Label htmlFor="interests">Interests</Label>
-                <Textarea
-                  id="interests"
-                  value={data.additionalSections.interests}
-                  onChange={(e) => handleAdditionalSectionChange("interests", e.target.value)}
-                  rows={3}
-                  placeholder="List your hobbies and interests"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
-  )
+      default:
+        return null
+    }
+  }
+
+  return renderTabContent()
 }

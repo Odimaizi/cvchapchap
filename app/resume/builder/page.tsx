@@ -3,15 +3,16 @@
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ResumeForm } from "./ResumeForm"
 import { ResumePreview } from "./ResumePreview"
-import { Loader2 } from "lucide-react"
+import { Loader2, Save, Download } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { ResumePaymentWall } from "@/components/ResumePaymentWall"
 import { useSubscription } from "@/contexts/subscription-context"
+import { AIAssistant } from "./AIAssistant"
 
 export default function ResumeBuilder() {
   const searchParams = useSearchParams()
@@ -22,8 +23,9 @@ export default function ResumeBuilder() {
 
   const [loading, setLoading] = useState(true)
   const [template, setTemplate] = useState(null)
-  const [activeTab, setActiveTab] = useState("content")
+  const [activeTab, setActiveTab] = useState("personal")
   const [showPaymentWall, setShowPaymentWall] = useState(false)
+  const [aiSuggesting, setAiSuggesting] = useState(false)
   const [resumeData, setResumeData] = useState({
     personal: {
       fullName: "",
@@ -378,32 +380,63 @@ export default function ResumeBuilder() {
   }
 
   return (
-    <div className="container mx-auto py-12">
-      <h1 className="text-3xl font-bold mb-8">Resume Builder</h1>
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="content">Add Content</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-        </TabsList>
-        <TabsContent value="content">
-          <ResumeForm data={resumeData} onChange={handleResumeDataChange} />
-        </TabsContent>
-        <TabsContent value="preview">
-          <Card>
+    <div className="container mx-auto py-6">
+      <h1 className="text-3xl font-bold mb-6">Resume Builder</h1>
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left side - Form */}
+        <div className="w-full lg:w-1/3">
+          <Card className="h-full">
             <CardHeader>
-              <CardTitle>Resume Preview</CardTitle>
+              <CardTitle>Resume Content</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-3 lg:grid-cols-2 mb-4">
+                  <TabsTrigger value="personal">Personal</TabsTrigger>
+                  <TabsTrigger value="experience">Experience</TabsTrigger>
+                  <TabsTrigger value="education">Education</TabsTrigger>
+                  <TabsTrigger value="skills">Skills</TabsTrigger>
+                  <TabsTrigger value="achievements">Achievements</TabsTrigger>
+                  <TabsTrigger value="references">References</TabsTrigger>
+                </TabsList>
+
+                <div className="px-4 pb-4">
+                  <AIAssistant
+                    section={activeTab}
+                    data={resumeData}
+                    onUpdate={(newData) => setResumeData(newData)}
+                    isLoading={aiSuggesting}
+                    setIsLoading={setAiSuggesting}
+                  />
+
+                  <ResumeForm data={resumeData} onChange={handleResumeDataChange} activeTab={activeTab} />
+                </div>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right side - Preview */}
+        <div className="w-full lg:w-2/3">
+          <Card className="h-full">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Live Preview</CardTitle>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleExport}>
+                  <Save className="mr-2 h-4 w-4" /> Save
+                </Button>
+                <Button onClick={handleExportClick}>
+                  <Download className="mr-2 h-4 w-4" /> Export
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <ResumePreview template={template} data={resumeData} />
-              <div className="mt-6 flex justify-center">
-                <Button size="lg" onClick={handleExportClick}>
-                  Export Resume
-                </Button>
-              </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   )
 }

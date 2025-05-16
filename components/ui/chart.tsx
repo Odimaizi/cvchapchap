@@ -7,6 +7,11 @@ interface ChartProps {
   className?: string
 }
 
+interface ChartTooltipProps {
+  label: string
+  value: number
+}
+
 export const BarChart = ({ data, index, categories, colors, valueFormatter, className }: ChartProps) => {
   return (
     <div className={className}>
@@ -39,6 +44,23 @@ export const DonutChart = ({ data, index, category, valueFormatter, className }:
     <div className={className}>
       {/* Placeholder for DonutChart implementation */}
       <div>DonutChart</div>
+    </div>
+  )
+}
+
+export const ChartContainer = ({ children, config }) => {
+  return <div className="chart-container">{children}</div>
+}
+
+export const ChartTooltip = ({ children }) => {
+  return <div className="chart-tooltip">{children}</div>
+}
+
+export const ChartTooltipContent = ({ label, value }: ChartTooltipProps) => {
+  return (
+    <div className="chart-tooltip-content">
+      <div>{label}</div>
+      <div>{value}</div>
     </div>
   )
 }
