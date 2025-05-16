@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, Loader2 } from "lucide-react"
+import { Search, Filter, Loader2, Eye } from "lucide-react"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
 export default function ResumeTemplates() {
   const router = useRouter()
@@ -18,72 +19,26 @@ export default function ResumeTemplates() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState("all")
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
 
   useEffect(() => {
     const fetchTemplates = async () => {
-      const { data, error } = await supabase.from("resume_templates").select("*")
+      try {
+        setLoading(true)
+        const { data, error } = await supabase.from("resume_templates").select("*")
 
-      if (error) {
+        if (error) {
+          throw error
+        }
+
+        console.log("Fetched templates:", data)
+        setTemplates(data || [])
+        setFilteredTemplates(data || [])
+      } catch (error) {
         console.error("Error fetching templates:", error)
-        return
+      } finally {
+        setLoading(false)
       }
-
-      // If no templates exist yet, use these sample templates
-      const sampleTemplates = [
-        {
-          id: "1",
-          name: "Modern Professional",
-          description: "A clean and modern template for professionals",
-          category: "professional",
-          thumbnail_url: "/placeholder.svg?height=400&width=300&text=Modern Professional",
-          is_premium: false,
-        },
-        {
-          id: "2",
-          name: "Creative Portfolio",
-          description: "Stand out with this creative design",
-          category: "creative",
-          thumbnail_url: "/placeholder.svg?height=400&width=300&text=Creative Portfolio",
-          is_premium: true,
-        },
-        {
-          id: "3",
-          name: "Executive",
-          description: "Perfect for senior positions and executives",
-          category: "professional",
-          thumbnail_url: "/placeholder.svg?height=400&width=300&text=Executive",
-          is_premium: true,
-        },
-        {
-          id: "4",
-          name: "Minimalist",
-          description: "Simple and elegant design",
-          category: "minimal",
-          thumbnail_url: "/placeholder.svg?height=400&width=300&text=Minimalist",
-          is_premium: false,
-        },
-        {
-          id: "5",
-          name: "Technical Specialist",
-          description: "Optimized for technical roles",
-          category: "technical",
-          thumbnail_url: "/placeholder.svg?height=400&width=300&text=Technical Specialist",
-          is_premium: false,
-        },
-        {
-          id: "6",
-          name: "Academic CV",
-          description: "Ideal for academic and research positions",
-          category: "academic",
-          thumbnail_url: "/placeholder.svg?height=400&width=300&text=Academic CV",
-          is_premium: true,
-        },
-      ]
-
-      const templatesData = data?.length > 0 ? data : sampleTemplates
-      setTemplates(templatesData)
-      setFilteredTemplates(templatesData)
-      setLoading(false)
     }
 
     fetchTemplates()
@@ -161,7 +116,7 @@ export default function ResumeTemplates() {
             <Card key={template.id} className="overflow-hidden">
               <div className="aspect-[3/4] relative">
                 <img
-                  src={template.thumbnail_url || "/placeholder.svg"}
+                  src={template.thumbnail_url || "/placeholder.svg?height=400&width=300&text=" + template.name}
                   alt={template.name}
                   className="object-cover w-full h-full"
                 />
@@ -170,6 +125,18 @@ export default function ResumeTemplates() {
                     Premium
                   </Badge>
                 )}
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary" size="sm" className="absolute top-2 left-2">
+                      <Eye className="h-4 w-4 mr-1" /> Preview
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl h-[80vh]">
+                    <div className="h-full overflow-auto p-4">
+                      <div dangerouslySetInnerHTML={{ __html: template.html_content }} />
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
               <CardContent className="p-4">
                 <div className="mb-4">
