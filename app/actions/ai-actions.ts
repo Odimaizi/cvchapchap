@@ -1,7 +1,9 @@
 "use server"
 
-import { generateText } from "ai"
-import { gemini } from "@ai-sdk/gemini"
+import { GoogleGenerativeAI } from "@google/generative-ai"
+
+// Initialize the Google Generative AI with the API key
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_api_key || "")
 
 export async function generateAIContent(section: string, prompt: string, data: any) {
   const context = `
@@ -25,12 +27,13 @@ export async function generateAIContent(section: string, prompt: string, data: a
   `
 
   try {
-    const { text } = await generateText({
-      model: gemini("gemini-1.5-flash"),
-      prompt: aiPrompt + context,
-      temperature: 0.7,
-      maxTokens: 500,
-    })
+    // Get the model
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+
+    // Generate content
+    const result = await model.generateContent(aiPrompt + context)
+    const response = await result.response
+    const text = response.text()
 
     return text
   } catch (error) {
@@ -55,12 +58,13 @@ export async function analyzeResume(resumeData: any) {
   `
 
   try {
-    const { text } = await generateText({
-      model: gemini("gemini-1.5-flash"),
-      prompt,
-      temperature: 0.3,
-      maxTokens: 1000,
-    })
+    // Get the model
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+
+    // Generate content
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    const text = response.text()
 
     return JSON.parse(text)
   } catch (error) {
@@ -87,12 +91,13 @@ export async function generateJobMatches(resumeData: any, count = 5) {
   `
 
   try {
-    const { text } = await generateText({
-      model: gemini("gemini-1.5-flash"),
-      prompt,
-      temperature: 0.7,
-      maxTokens: 1000,
-    })
+    // Get the model
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+
+    // Generate content
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    const text = response.text()
 
     return JSON.parse(text)
   } catch (error) {
